@@ -1,0 +1,70 @@
+---
+title: "Water Sanitation Coverage of Athi River"
+output: 
+  flexdashboard::flex_dashboard:
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE, message=FALSE, echo=FALSE}
+library(flexdashboard)
+require(magrittr)
+require(dplyr)
+require(ggplot2)
+require(lubridate)
+require(stringr)
+require(kableExtra)
+require(xts)
+require(dygraphs)
+load(file = "watersanitation.Rdata")
+```
+
+
+
+Visualizations {data-icon="fa-bar-chart"}
+===================================== 
+    
+### Time-series for Total Population
+    
+```{r}
+don = xts(water$Total_Pop, order.by = water$Date)
+dygraph(don, ylab = "Total_population(millions)", xlab = "Date as per day 1")
+```
+    
+### Frequencies
+
+```{r}
+w=function(y){return((y-min(y))/(max(y)-min(y)))}
+x$pop_number= w(x$pop_number) %>% round(digits=4)
+
+x$Annual_Pop_Growth=w(x$Annual_Pop_Growth) %>% round(digits = 4)
+
+ h = hist(x$pop_number, 
+          probability = FALSE,
+          col = "grey", 
+          xlab="population number", 
+          main = "Frequencies of population number")
+text(h$mids, h$counts, labels = h$counts, adj = c(0.5, -0.5))
+
+
+g=hist(x$Annual_Pop_Growth, 
+       probability = FALSE, 
+       col = "grey", 
+       xlab = "Annual population growth", 
+       main = "Frequency distribution of Annual population growth")
+text(g$mids, g$counts, labels = g$counts, adj = c(0.5, -0.5))
+```
+
+   
+Tables {data-icon="fa-table"}
+=====================================     
+### Coverage by pop_type
+    
+```{r}
+table(x$Type_of_Coverage, x$pop_type) %>% kable() %>% kable_styling()
+```
+     
+### Coverage by Date
+
+```{r}
+table(x$Type_of_Coverage, x$Date) %>% kable() %>% kable_styling()
+```
